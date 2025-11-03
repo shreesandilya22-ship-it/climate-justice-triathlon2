@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Climate Justice Triathlon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(to bottom, #020617, #0f172a, #020617); }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100">
+  <div id="root"></div>
+
+  <!-- React UMD + Babel (so we don't need a build step) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script>
+  window.__logoFallback = function(el, label){
+    if(!el || !el.getAttribute('src')) return;
+    var v = el.getAttribute('src');
+    if(v === "null" || v === "" || v === "undefined"){
+      var span = document.createElement('span');
+      span.textContent = label;
+      span.className = "rounded bg-white/10 px-2 py-1 text-xs";
+      el.replaceWith(span);
+    }
+  }
+</script>
+
+  <script type="text/babel">
+    const SIGNUP_URL  = "https://forms.office.com/r/c4hbxasPP7";
+    const AMNESTY_URL = "https://www.amnistie.ca";
+    const DONATE_URL  = "https://amnistie.ca/dons-mensuels";
+
+    const DMCC_LOGO_URL = null;
+    const AMNESTY_LOGO_URL = null;
+
+    const EVENTS = {
+      Swim: {
+        icon: "🏊",
+        color: "from-cyan-500 to-blue-500",
+        personas: [
+          {
+            name: "Alina",
+            region: "Bangladesh",
+            quote:
+              "During monsoon season, Alina wades through flooded streets to get to school. On average, her daily round trip takes 25 minutes.",
+            task: "Swim 500 m (~20 laps) to represent her daily flood crossing.",
+            fact:
+              "In South Asia and sub-Saharan Africa, average water collection/flood passage times exceed 30 minutes; in sub-Saharan rural areas, roundtrips average 33 minutes.",
+            source:
+              "https://bangladesh.un.org/en/274050-humanitarian-response-plan-cyclone-remal-and-monsoon-floods-bangladesh-june-december-2024",
+          },
+          {
+            name: "Mo",
+            region: "Kenya",
+            quote:
+              "Every day, Mo walks 6 km round trip to fetch clean water. Women and girls in developing regions spend an average of 6 km daily walking for water.",
+            task: "Swim 600 m (~24 laps), embodying that journey.",
+            fact: "The global average distance walked daily for water in developing regions is ~6 km.",
+            source:
+              "https://www.unocha.org/publications/report/kenya/kenya-heavy-rains-and-flooding-update-flash-update-7-19-june-2024",
+          },
+        ],
+      },
+      Cycling: {
+        icon: "🚴",
+        color: "from-emerald-500 to-lime-500",
+        personas: [
+          {
+            name: "John",
+            region: "New Orleans, USA",
+            quote:
+              "Rosa lives off-grid; she often uses a bicycle-powered generator to charge her phone once a week.",
+            task: "Bike for 25 minutes to simulate that weekly phone charge.",
+            fact:
+              "Human-powered generators can produce ~100 W — enough to charge small devices like phones and lamps.",
+            source:
+              "https://www.energystar.gov/sites/default/files/asset/document/LBR_2017-LED-Takeover.pdf",
+          },
+          {
+            name: "Emmanuel",
+            region: "Uganda",
+            quote:
+              "Every evening, Emmanuel’s family uses a bicycle generator to light a lamp for a few hours so he can study.",
+            task: "Bike for 30 minutes to represent powering that evening light.",
+            fact: "Pedal generators enable basic household lighting in areas with no grid access.",
+            source:
+              "https://deepblue.lib.umich.edu/bitstream/handle/2027.42/78822/pmuhoro_1.pdf",
+          },
+        ],
+      },
+      Run: {
+        icon: "🏃",
+        color: "from-fuchsia-500 to-pink-500",
+        personas: [
+          {
+            name: "Nadia",
+            region: "Pakistan",
+            quote:
+              "Due to displacement, Nadia’s family walked 1.5 km to reach a shelter — and they repeated that journey multiple times.",
+            task: "Run 1.5 km (6 laps) to embody her displacement route.",
+            fact:
+              "Climate-driven internal displacement affected ~32 million people in 2022, with many forced into repeated short-distance moves.",
+            source:
+              "https://www.humanitariancoalition.ca/sites/default/files/2024-09/Results%20report_Pakistan%202024.pdf",
+          },
+          {
+            name: "Luis",
+            region: "Honduras",
+            quote:
+              "After repeated hurricanes, Luis relocated 2 km inland to safety alongside his family.",
+            task: "Run 2 km (8 laps) to represent that relocation.",
+            fact:
+              "Central America faces severe climate-driven displacement from hurricanes and flooding.",
+            source: "https://belonging.berkeley.edu/climatedisplacement/case-studies/honduras",
+          },
+        ],
+      },
+    };
+
+    const Container = ({ children }) => (
+      <div className="min-h-screen w-full">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">{children}</div>
+      </div>
+    );
+
+    const Card = ({ children, className = "" }) => (
+      <div className={"rounded-2xl bg-slate-900/60 ring-1 ring-white/10 shadow-xl " + className}>
+        {children}
+      </div>
+    );
+
+    function App() {
+      const [selectedEvent, setSelectedEvent] = React.useState(null);
+      const [activePersonaIndex, setActivePersonaIndex] = React.useState(null);
+      const [view, setView] = React.useState('home');
+
+      const persona = React.useMemo(() => {
+        if (!selectedEvent || activePersonaIndex === null) return null;
+        return EVENTS[selectedEvent].personas[activePersonaIndex];
+      }, [selectedEvent, activePersonaIndex]);
+
+      const drawRandomPersona = () => {
+        if (!selectedEvent) return;
+        const idx = Math.floor(Math.random() * EVENTS[selectedEvent].personas.length);
+        setActivePersonaIndex(idx);
+      };
+
+      const resetAll = () => {
+        setSelectedEvent(null);
+        setActivePersonaIndex(null);
+      };
+
+      const currentUrl = (typeof window !== 'undefined') ? window.location.href : '#';
+
+      return (
+        <Container>
+          {/* Header */}
+          <header className="mb-8">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <img src={DMCC_LOGO_URL} alt="DMCC" className="h-10 w-auto rounded bg-white p-1"/>
+                  <img src={AMNESTY_LOGO_URL} alt="Amnistie" className="h-10 w-auto rounded bg-white p-1"/>
+                </div>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Climate Justice Triathlon</h1>
+                  <p className="mt-2 max-w-2xl text-slate-300">
+                    Scan • Select • Act. Choose your event, draw a real-world persona, and complete the task that represents their daily reality.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <a onClick={() => setView('info')} className="inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-base bg-white text-slate-900 font-semibold cursor-pointer">Event Info</a>
+                <a href={AMNESTY_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">About Amnistie</a>
+                <a href={DONATE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">Donate</a>
+              </div>
+            </div>
+          </header>
+
+          {view === 'home' && (
+            <div className="mb-8">
+              <Card className="p-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold">What is this event?</h2>
+                  <p className="text-white/80">Learn who this is for, why it matters, and how each activity connects to climate justice.</p>
+                </div>
+                <a onClick={() => setView('info')} className="inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-base bg-white text-slate-900 font-semibold cursor-pointer">Open Event Info</a>
+              </Card>
+            </div>
+          )}
+
+          {/* Event selection */}
+          <section className="mb-10">
+            <h2 className="mb-4 text-xl font-bold text-white/90">1) Pick your event</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {Object.entries(EVENTS).map(([key, cfg]) => (
+                <button key={key}
+                        onClick={() => { setSelectedEvent(key); setActivePersonaIndex(null); }}
+                        className={`group relative overflow-hidden rounded-2xl p-5 text-left ring-1 ring-white/10 bg-gradient-to-br ${cfg.color}`}>
+                  <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10 blur-lg"></div>
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="relative z-10 flex items-center gap-3">
+                    <span className="text-xl">{cfg.icon}</span>
+                    <div>
+                      <p className="text-lg font-bold">{key}</p>
+                      <p className="text-sm opacity-90">
+                        {key === "Swim" && "Pool laps that mirror daily water/flood journeys."}
+                        {key === "Cycling" && "Pedal-power to mirror off-grid energy access."}
+                        {key === "Run" && "Short routes that mirror displacement distances."}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedEvent === key ? (
+                    <span className="absolute bottom-3 right-4 rounded-full bg-white/20 px-2 py-1 text-xs font-semibold">Selected</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Persona */}
+          <section className="mb-10">
+            <div className="flex items-center justify-between">
+              <h2 className="mb-4 text-xl font-bold text-white/90">2) Draw your persona</h2>
+              <div className="flex gap-2">
+                <a onClick={drawRandomPersona} className={"inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white text-slate-900 font-semibold cursor-pointer " + (!selectedEvent ? "opacity-50 pointer-events-none" : "")}>
+                  {activePersonaIndex === null ? "Draw Random" : "Draw Again"}
+                </a>
+                <a onClick={resetAll} className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10 cursor-pointer">Reset</a>
+              </div>
+            </div>
+
+            {!selectedEvent ? (
+              <Card className="p-6"><p className="text-slate-300">Select an event above to enable random persona draw.</p></Card>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <Card className="p-6">
+                  <h3 className="mb-3 text-lg font-semibold">Personas in this event</h3>
+                  <ul className="space-y-3">
+                    {EVENTS[selectedEvent].personas.map((p, idx) => (
+                      <li key={p.name}>
+                        <button onClick={() => setActivePersonaIndex(idx)}
+                                className={`w-full rounded-xl border border-white/10 p-4 text-left transition hover:bg-white/5 ${activePersonaIndex === idx ? "bg-white/10" : "bg-transparent"}`}>
+                          <p className="text-sm uppercase tracking-wide text-white/70">{p.region}</p>
+                          <p className="text-base font-bold">{p.name}</p>
+                          <p className="mt-1 text-sm text-white/80 line-clamp-2">{p.quote}</p>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-xs text-white/60">Tip: tap a persona to view details, or use Draw Random.</p>
+                </Card>
+
+                <div>
+                  <Card className="p-6">
+                    {!persona ? (
+                      <div className="text-slate-300">No persona selected yet. Draw or pick one on the left.</div>
+                    ) : (
+                      <div>
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm uppercase tracking-wide text-white/60">{persona.region}</p>
+                            <h3 className="text-2xl font-extrabold">{persona.name}</h3>
+                          </div>
+                          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">{selectedEvent}</span>
+                        </div>
+                        <blockquote className="rounded-xl bg-white/5 p-4 text-white/90">“{persona.quote}”</blockquote>
+                        <div className="mt-4 space-y-3">
+                          <div>
+                            <h4 className="text-sm font-semibold text-white/90">Your task</h4>
+                            <p className="text-white/90">{persona.task}</p>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold text-white/90">Why this matters</h4>
+                            <p className="text-white/80">{persona.fact}</p>
+                            <a href={persona.source} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-white underline underline-offset-4">Source ↗</a>
+                          </div>
+                        </div>
+                        <div className="mt-6 flex flex-wrap gap-2">
+                          <a href={DONATE_URL} target="_blank" className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">Donate to Amnistie</a>
+                          <a href={AMNESTY_URL} target="_blank" className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">Learn more</a>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {view === 'info' && (
+            <section className="mb-10">
+              <Card className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-extrabold">Event Info</h2>
+                  <div className="flex gap-2">
+                    <a onClick={() => setView('home')} className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10 cursor-pointer">Back</a>
+                    <a href={currentUrl} className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">Share</a>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                  <div className="lg:col-span-2 space-y-6">
+                    <section>
+                      <h3 className="text-lg font-bold">Target audience & rationale</h3>
+                      <p className="mt-2 text-white/85">
+                        We’re inviting the JDC delegation and the wider McGill community. Our diverse student body brings varied perspectives on climate justice. As university students in a high-cost city like Montreal, many of us enjoy resource security that’s not guaranteed elsewhere. This event builds empathy and frames climate justice as a shared responsibility, creating space to exchange perspectives and learn how it manifests differently in people’s lives.
+                      </p>
+                      <ul className="mt-2 list-disc pl-5 text-white/80 space-y-1">
+                        <li>Experience realities behind statistics through short, embodied tasks.</li>
+                        <li>Reflect on privilege and unequal exposure to climate harm.</li>
+                        <li>Connect action to human rights via Amnistie’s work.</li>
+                      </ul>
+                    </section>
+                    <section>
+                      <h3 className="text-lg font-bold">Objectives</h3>
+                      <ul className="mt-2 grid gap-2">
+                        <li>Raise awareness of disproportionate burdens on marginalized groups.</li>
+                        <li>Foster empathy through embodied experience, not just numbers.</li>
+                        <li>Spark campus discussions on climate justice (JDC + McGill-wide).</li>
+                      </ul>
+                      <p className="mt-2 text-white/80">Our three mini-events + social campaign broaden reach beyond attendees and cultivate lasting mindset shifts about climate inequity.</p>
+                    </section>
+                    <section>
+                      <h3 className="text-lg font-bold">Link to the Pillar</h3>
+                      <p className="mt-2 text-white/85">
+                        Climate change drives socioeconomic, racial, and gender disparities. The poorest 50% of people produce ~10% of emissions, while the richest 10% produce nearly half. Canada contributes ~2% of global GHGs with &lt;0.5% of the population.
+                      </p>
+                      <p className="mt-2 text-white/80">By adopting a randomly assigned persona, participants use physical effort to empathize with daily struggles in climate‑vulnerable communities.</p>
+                    </section>
+                    <section>
+                      <h3 className="text-lg font-bold">Engagement & learning</h3>
+                      <p className="mt-2 text-white/85">Immersive tasks prompt reflection and action. Keep momentum by exploring Amnistie’s resources or donating.</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <a href={AMNESTY_URL} target="_blank" className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">About Amnistie</a>
+                        <a href={DONATE_URL} target="_blank" className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm bg-white/5 hover:bg-white/10">Donate</a>
+                      </div>
+                    </section>
+                  </div>
+                  <aside className="space-y-4">
+                    <div className="rounded-2xl bg-yellow-300 p-3 text-slate-900">
+                      <div className="flex items-center gap-2">
+                        <img src={AMNESTY_LOGO_URL} alt="Amnistie" className="h-8 w-auto" onLoad={(e)=>window.__logoFallback(e.target, "Amnistie")}/>
+                        <p className="font-semibold">In partnership with Amnistie</p>
+                      </div>
+                      <p className="mt-2 text-sm">Learn about environmental human rights, climate displacement, and defending activists.</p>
+                    </div>
+                    <div className="rounded-2xl bg-white/5 p-4">
+                      <div className="flex items-center gap-2">
+                        <img src={DMCC_LOGO_URL} alt="DMCC" className="h-8 w-auto" onLoad={(e)=>window.__logoFallback(e.target, "DMCC")}/>
+                        <p className="font-semibold">Organized by DMCC</p>
+                      </div>
+                      <p className="mt-2 text-sm text-white/80">McGill’s student‑led initiative merging fitness with climate justice education.</p>
+                    </div>
+                    <div className="rounded-2xl bg-white/5 p-4">
+                      <p className="font-semibold">Quick links</p>
+                      <ul className="mt-2 space-y-2 text-sm">
+                        <li><a className="underline" href={AMNESTY_URL} target="_blank">About Amnistie</a></li>
+                        <li><a className="underline" href={DONATE_URL} target="_blank">Donate</a></li>
+                        <li><a className="underline cursor-pointer" onClick={() => setView('home')}>Back to event selector</a></li>
+                      </ul>
+                    </div>
+                  </aside>
+                </div>
+              </Card>
+            </section>
+          )}
+
+          <footer className="mt-8 text-center text-xs text-white/60">
+            <p>Organized by DMCC • In partnership with Amnistie internationale.</p>
+          </footer>
+        </Container>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
